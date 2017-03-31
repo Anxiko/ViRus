@@ -10,6 +10,7 @@
 #include <fstream>
 
 #include <map>
+#include <set>
 
 namespace ViRus
 {
@@ -142,6 +143,7 @@ namespace ViRus
 		private:
 
 			std::map<btCollisionObject*, Hittable *> hittables;
+			std::set<btCollisionObject *> clean_up;
 
 		public:
 
@@ -155,7 +157,10 @@ namespace ViRus
 			//Handle collision
 			void handle_collision(btCollisionObject *a, btCollisionObject *b);
 
-		private:
+			//Delete pointers queued for destroctions
+			void clean_queued();
+
+		public:
 
 			//Delete all hittables
 			void clear_all();

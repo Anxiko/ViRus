@@ -37,11 +37,13 @@ namespace ViRus
 				HitCharacter *ptr_character = dynamic_cast<HitCharacter *>(&h);
 				if (ptr_character)
 					ptr_character->takeDamage(dmg);
+				isFinished = true;
+				break;
 			}
 
 			case HittableType::OBSTACLE:
 			{
-				isFinished = true;
+				//isFinished = true;
 				break;
 			}
 
@@ -100,17 +102,26 @@ namespace ViRus
 				//Check if either of them needs to be deleted
 				if (ptr_a->finished())
 				{
-					delete ptr_a;
-					hittables.erase(a);
+					clean_up.insert(a);
 				}
 
 				if (ptr_b->finished())
 				{
-					delete ptr_b;
-					hittables.erase(b);
+					clean_up.insert(b);
 				}
 			}
 		}
+	}
+
+	void HitMap::clean_queued()
+	{
+		for (btCollisionObject *obj : clean_up)
+		{
+			delete obj;
+			hittables.erase(obj);
+		}
+
+		clean_up.clear();
 	}
 
 	void HitMap::clear_all()

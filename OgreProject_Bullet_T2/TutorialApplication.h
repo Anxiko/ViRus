@@ -46,8 +46,6 @@ private:
 	OgreBulletCollisions::DebugDrawer *debugDrawer;
 	int mNumEntitiesInstanced;
 
-	std::deque<OgreBulletDynamics::RigidBody *> mBodies;
-	std::deque<OgreBulletCollisions::CollisionShape *> mShapes;
 	ViRus::HitMap hitmap;
 
 	btCollisionObject *penguinBulletObject;

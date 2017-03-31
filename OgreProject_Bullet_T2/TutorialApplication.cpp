@@ -79,12 +79,10 @@ void TutorialApplication::createScene(void)
 	OgreBulletDynamics::RigidBody *floorBody = new OgreBulletDynamics::RigidBody("FloorBody", mWorld);
 	floorBody->setStaticShape(floorShape, 0.1, 0.8); // (shape, restitution, friction)
 
+	// Push the created objects to the deques
+
 	ViRus::Hittable *floorHittable = new ViRus::Hittable(ViRus::HittableType::OBSTACLE, floorBody, floorShape, floorNode);
 	hitmap.add_hittable(*floorBody->getBulletObject(), *floorHittable);
-
-	// Push the created objects to the deques
-	//mShapes.push_back(floorShape);
-	//mBodies.push_back(floorBody);
 
 	// Define the penguin mesh
 	Ogre::Entity* penguin = mSceneMgr->createEntity("Penguin", "penguin.mesh");
@@ -121,8 +119,6 @@ void TutorialApplication::createScene(void)
 	penguinBody->disableDeactivation();
 
 	// Push the created objects to the deques
-	//mShapes.push_back(penguinShape);
-	//mBodies.push_back(penguinBody);
 
 	ViRus::Hittable *penguinHittable = new ViRus::HitCharacter(ViRus::HittableType::ENEMY, penguinBody, penguinShape, penguinNode, 10);
 	penguinHittable->set_callback(TutorialApplication::hero_callback);
@@ -136,15 +132,7 @@ void TutorialApplication::destroyScene(void)
 {
 	BaseApplication::destroyScene();
 
-	for (auto ptr_rigid : mBodies)
-		delete ptr_rigid;
-
-	mBodies.clear();
-
-	for (auto ptr_collisionShape : mShapes)
-		delete ptr_collisionShape;
-
-	mShapes.clear();
+	hitmap.clear_all();
 
 	delete mWorld->getDebugDrawer();
 	mWorld->setDebugDrawer(nullptr);
@@ -213,8 +201,6 @@ bool TutorialApplication::processUnbufferedInput(const Ogre::FrameEvent& evt)
 		mNumEntitiesInstanced++;
 
 		// Push the created objects to the deques
-		//mShapes.push_back(barrelShape);
-		//mBodies.push_back(barrelBody);
 
 		ViRus::Hittable *barrelHittable = new ViRus::HitProjectile(barrelBody, barrelShape, barrelNode, 10);
 
@@ -265,6 +251,8 @@ bool TutorialApplication::processUnbufferedInput(const Ogre::FrameEvent& evt)
 			break;
 		}
 	}
+
+	hitmap.clean_queued();
 
 	if (!penguinHitLastFrame && penguinHitThisFrame && hero_alive)
 		mSceneMgr->getSceneNode("PenguinNode")->pitch(Ogre::Degree(90.0));
