@@ -41,4 +41,61 @@ namespace ViRus
 			}
 		}
 	}
+
+	HitMap::~HitMap()
+	{
+		clear_all();
+	}
+
+	void HitMap::add_hittable(btCollisionObject &c, Hittable &h)
+	{
+		hittables.insert(std::pair<btCollisionObject *, Hittable *>(&c, &h));
+	}
+	void HitMap::handle_collision(btCollisionObject * a, btCollisionObject * b)
+	{
+		//Check that none of the pointers are null
+		if (a&&b)
+		{
+			Hittable *ptr_a = nullptr, *ptr_b = nullptr;
+
+			//Get the hittables
+			auto it_a = hittables.find(a);
+			if (it_a != hittables.end())
+				ptr_a = it_a->second;
+			auto it_b = hittables.find(b);
+			if (it_b != hittables.end())
+				ptr_b = it_b->second;
+
+			//Check that both hittables were found
+			if (ptr_a&&ptr_b)
+			{
+				//Hit eachother
+				ptr_a->hit(*ptr_b);
+				ptr_b->hit(*ptr_a);
+
+				//Check if either of them needs to be deleted
+				if (ptr_a->finished())
+				{
+					delete ptr_a;
+					hittables.erase(a);
+				}
+
+				if (ptr_b->finished())
+				{
+					delete ptr_b;
+					hittables.erase(b);
+				}
+			}
+		}
+	}
+
+	void HitMap::clear_all()
+	{
+		for (auto &it : hittables)
+		{
+			delete it.second;
+		}
+
+		hittables.clear();
+	}
 }

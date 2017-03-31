@@ -7,6 +7,8 @@
 #include "Shapes/OgreBulletCollisionsBoxShape.h" // for boxes
 #include "BaseApplication.h"
 
+#include <map>
+
 namespace ViRus
 {
 
@@ -14,6 +16,7 @@ namespace ViRus
 	class Hittable;//Object that can be hit
 	class HitProjectile;//Projectile that can hit objects
 	class HitCharacter;//Character that can be hit
+	class HitMap;//Map that goes from the physics object to the hittable object
 
 	//Types
 
@@ -141,6 +144,33 @@ namespace ViRus
 				health -= idmg;
 			}
 	};
+
+
+	//Map that goes from the physics object to the hittable object
+	class HitMap
+	{
+		private:
+
+			std::map<btCollisionObject*, Hittable *> hittables;
+
+		public:
+
+			~HitMap();
+
+		public:
+
+			//Add a hittable
+			void add_hittable(btCollisionObject &c, Hittable &h);
+
+			//Handle collision
+			void handle_collision(btCollisionObject *a, btCollisionObject *b);
+
+		private:
+
+			//Delete all hittables
+			void clear_all();
+	};
+
 }
 
 #endif // !_VIRUS_PHYSICS_
