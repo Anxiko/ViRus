@@ -6,6 +6,8 @@
 #include "Shapes/OgreBulletCollisionsStaticPlaneShape.h" // for static planes
 #include "Shapes/OgreBulletCollisionsBoxShape.h" // for boxes
 #include "BaseApplication.h"
+#include <iostream>
+#include <fstream>
 
 #include <map>
 
@@ -54,26 +56,7 @@ namespace ViRus
 				:type(itype),body(ibody),shape(ishape),scene(iscene)
 			{}
 
-			virtual ~Hittable()
-			{
-				delete body;
-				delete shape;
-
-				if (scene)
-				{
-					// Destroy all the attached objects
-					Ogre::SceneNode::ObjectIterator itObject = scene->getAttachedObjectIterator();
-
-					while (itObject.hasMoreElements())
-					{
-						Ogre::MovableObject* pObject = static_cast<Ogre::MovableObject*>(itObject.getNext());
-						scene->getCreator()->destroyMovableObject(pObject);
-					}
-
-					if (ptr_scn_mgr)
-						ptr_scn_mgr->destroySceneNode(scene);
-				}
-			}
+			virtual ~Hittable();
 
 		public:
 

@@ -18,6 +18,7 @@ This source file is part of the
 #define __TutorialApplication_h_
 
 #include "BaseApplication.h"
+#include "Physics.h"
 
 #include "OgreBulletDynamicsRigidBody.h" // for OgreBullet
 #include "Shapes/OgreBulletCollisionsStaticPlaneShape.h" // for static planes
@@ -45,6 +46,7 @@ private:
 
 	std::deque<OgreBulletDynamics::RigidBody *> mBodies;
 	std::deque<OgreBulletCollisions::CollisionShape *> mShapes;
+	ViRus::HitMap hitmap;
 
 	btCollisionObject *penguinBulletObject;
 };

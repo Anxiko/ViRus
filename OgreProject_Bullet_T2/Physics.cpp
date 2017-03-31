@@ -4,6 +4,26 @@ namespace ViRus
 {
 	Ogre::SceneManager * Hittable::ptr_scn_mgr = nullptr;
 
+	Hittable::~Hittable()
+	{
+		delete body;
+		delete shape;
+
+		if (scene)
+		{
+			// Destroy all the attached objects
+			Ogre::SceneNode::ObjectIterator itObject = scene->getAttachedObjectIterator();
+
+			while (itObject.hasMoreElements())
+			{
+				Ogre::MovableObject* pObject = static_cast<Ogre::MovableObject*>(itObject.getNext());
+				scene->getCreator()->destroyMovableObject(pObject);
+			}
+
+			if (ptr_scn_mgr)
+				ptr_scn_mgr->destroySceneNode(scene);
+		}
+	}
 
 	void HitProjectile::hit(Hittable & h)
 	{
@@ -53,6 +73,7 @@ namespace ViRus
 	}
 	void HitMap::handle_collision(btCollisionObject * a, btCollisionObject * b)
 	{
+
 		//Check that none of the pointers are null
 		if (a&&b)
 		{

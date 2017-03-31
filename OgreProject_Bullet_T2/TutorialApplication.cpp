@@ -28,6 +28,8 @@ TutorialApplication::~TutorialApplication(void)
 //-------------------------------------------------------------------------------------
 void TutorialApplication::createScene(void)
 {
+	ViRus::Hittable::ptr_scn_mgr = mSceneMgr;
+
 	mNumEntitiesInstanced = 0; // how many shapes are created
 
 							   // Start Bullet
@@ -65,7 +67,9 @@ void TutorialApplication::createScene(void)
 	// Create the entity (the floor)
 	Ogre::Entity* floor = mSceneMgr->createEntity("Floor", "FloorPlane");
 	floor->setMaterialName("Examples/BumpyMetal");
-	floor->setCastShadows(false); mSceneMgr->getRootSceneNode()->createChildSceneNode()->attachObject(floor);
+	floor->setCastShadows(false); 
+	Ogre::SceneNode * floorNode = mSceneMgr->getRootSceneNode()->createChildSceneNode();
+	floorNode->attachObject(floor);
 
 	// Add collision detection to it
 	OgreBulletCollisions::CollisionShape *floorShape;
@@ -114,10 +118,11 @@ void TutorialApplication::createScene(void)
 	penguinBody->disableDeactivation();
 
 	// Push the created objects to the deques
-	mShapes.push_back(penguinShape);
-	mBodies.push_back(penguinBody);
+	//mShapes.push_back(penguinShape);
+	//mBodies.push_back(penguinBody);
 
 	penguinBulletObject = penguinBody->getBulletObject();
+	hitmap.add_hittable(*penguinBulletObject, *new ViRus::HitCharacter(ViRus::HittableType::ENEMY, penguinBody, penguinShape, penguinNode,10));
 }
 
 //-------------------------------------------------------------------------------------
@@ -202,8 +207,12 @@ bool TutorialApplication::processUnbufferedInput(const Ogre::FrameEvent& evt)
 		mNumEntitiesInstanced++;
 
 		// Push the created objects to the deques
-		mShapes.push_back(barrelShape);
-		mBodies.push_back(barrelBody);
+		//mShapes.push_back(barrelShape);
+		//mBodies.push_back(barrelBody);
+
+		ViRus::Hittable *barrelHittable = new ViRus::HitProjectile(barrelBody, barrelShape, barrelNode, 10);
+
+		hitmap.add_hittable(*barrelBody->getBulletObject(), *barrelHittable);
 	}
 
 	static Ogre::Real mMove = 250; // The movement constant
@@ -241,6 +250,8 @@ bool TutorialApplication::processUnbufferedInput(const Ogre::FrameEvent& evt)
 		btPersistentManifold* contactManifold = mBulletWorld->getDispatcher()->getManifoldByIndexInternal(i);
 		btCollisionObject* obA = const_cast<btCollisionObject*>(contactManifold->getBody0());
 		btCollisionObject* obB = const_cast<btCollisionObject*>(contactManifold->getBody1());
+
+		hitmap.handle_collision(obA, obB);
 
 		if ((obA == penguinBulletObject) || (obB == penguinBulletObject))
 		{
