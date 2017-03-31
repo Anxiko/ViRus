@@ -49,6 +49,7 @@ namespace ViRus
 			OgreBulletDynamics::RigidBody *body;
 			OgreBulletCollisions::CollisionShape *shape;
 			Ogre::SceneNode *scene;
+			void(*callback) (Hittable *) = nullptr;
 
 
 		public:
@@ -68,6 +69,12 @@ namespace ViRus
 			virtual bool finished()
 			{
 				return false;
+			}
+
+			//Set the callback to be called before deletion
+			void set_callback(void(*icallback) (Hittable *))
+			{
+				callback = icallback;
 			}
 	};
 

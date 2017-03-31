@@ -79,9 +79,12 @@ void TutorialApplication::createScene(void)
 	OgreBulletDynamics::RigidBody *floorBody = new OgreBulletDynamics::RigidBody("FloorBody", mWorld);
 	floorBody->setStaticShape(floorShape, 0.1, 0.8); // (shape, restitution, friction)
 
+	ViRus::Hittable *floorHittable = new ViRus::Hittable(ViRus::HittableType::OBSTACLE, floorBody, floorShape, floorNode);
+	hitmap.add_hittable(*floorBody->getBulletObject(), *floorHittable);
+
 	// Push the created objects to the deques
-	mShapes.push_back(floorShape);
-	mBodies.push_back(floorBody);
+	//mShapes.push_back(floorShape);
+	//mBodies.push_back(floorBody);
 
 	// Define the penguin mesh
 	Ogre::Entity* penguin = mSceneMgr->createEntity("Penguin", "penguin.mesh");
@@ -121,8 +124,11 @@ void TutorialApplication::createScene(void)
 	//mShapes.push_back(penguinShape);
 	//mBodies.push_back(penguinBody);
 
+	ViRus::Hittable *penguinHittable = new ViRus::HitCharacter(ViRus::HittableType::ENEMY, penguinBody, penguinShape, penguinNode, 10);
+	penguinHittable->set_callback(TutorialApplication::hero_callback);
+
 	penguinBulletObject = penguinBody->getBulletObject();
-	hitmap.add_hittable(*penguinBulletObject, *new ViRus::HitCharacter(ViRus::HittableType::ENEMY, penguinBody, penguinShape, penguinNode,10));
+	hitmap.add_hittable(*penguinBulletObject, *penguinHittable);
 }
 
 //-------------------------------------------------------------------------------------
@@ -234,8 +240,8 @@ bool TutorialApplication::processUnbufferedInput(const Ogre::FrameEvent& evt)
 	{
 		transVector.x += mMove;
 	}
-
-	mSceneMgr->getSceneNode("PenguinNode")->translate(transVector * evt.timeSinceLastFrame);
+	if (hero_alive)
+		mSceneMgr->getSceneNode("PenguinNode")->translate(transVector * evt.timeSinceLastFrame);
 
 	// Update Bullet Physics animation
 	mWorld->stepSimulation(evt.timeSinceLastFrame);
@@ -260,12 +266,16 @@ bool TutorialApplication::processUnbufferedInput(const Ogre::FrameEvent& evt)
 		}
 	}
 
-	if (!penguinHitLastFrame && penguinHitThisFrame)
+	if (!penguinHitLastFrame && penguinHitThisFrame && hero_alive)
 		mSceneMgr->getSceneNode("PenguinNode")->pitch(Ogre::Degree(90.0));
 
 	penguinHitLastFrame = penguinHitThisFrame;
 
 	return true;
+}
+void TutorialApplication::hero_callback(ViRus::Hittable *)
+{
+	hero_alive = false;
 }
 //-------------------------------------------------------------------------------------
 

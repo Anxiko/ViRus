@@ -6,6 +6,9 @@ namespace ViRus
 
 	Hittable::~Hittable()
 	{
+		if (callback)
+			(callback)(this);
+
 		delete body;
 		delete shape;
 

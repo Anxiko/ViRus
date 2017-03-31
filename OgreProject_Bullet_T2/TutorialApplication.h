@@ -24,6 +24,8 @@ This source file is part of the
 #include "Shapes/OgreBulletCollisionsStaticPlaneShape.h" // for static planes
 #include "Shapes/OgreBulletCollisionsBoxShape.h" // for boxes
 
+bool hero_alive = true;
+
 class TutorialApplication : public BaseApplication
 {
 public:
@@ -49,6 +51,12 @@ private:
 	ViRus::HitMap hitmap;
 
 	btCollisionObject *penguinBulletObject;
+	ViRus::HitCharacter *heroHitter = nullptr;
+
+private:
+
+	//Hero callback
+	static void hero_callback(ViRus::Hittable *h);
 };
 
 #endif // #ifndef __TutorialApplication_h_
