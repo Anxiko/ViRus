@@ -102,6 +102,8 @@ void TutorialApplication::createScene(void)
 	penguinNode->scale(0.25f, 0.25f, 0.25f); // The penguin is too big for us
 	penguinShapeSize *= 0.25f; // don't forget to scale down the Bullet shape too
 
+	penguinNode->yaw(Ogre::Degree(180));
+
 	penguinNode->translate(0.0, 6.0, 0.0);
 
 	// After that create the Bullet shape with the calculated size
@@ -120,10 +122,52 @@ void TutorialApplication::createScene(void)
 
 	// Push the created objects to the deques
 
-	ViRus::Hittable *penguinHittable = new ViRus::HitCharacter(penguinBody, penguinShape, penguinNode,  ViRus::TeamType::ENEMY, 40);
+	ViRus::Hittable *penguinHittable = new ViRus::HitCharAttack(penguinBody, penguinShape, penguinNode,  ViRus::TeamType::ENEMY, 40, 5);
 	penguinHittable->set_callback(TutorialApplication::hero_callback);
 
 	hitmap.add_hittable(*penguinBody->getBulletObject(), *penguinHittable);
+
+
+
+	// Define the penguin2 mesh
+	Ogre::Entity* penguin2 = mSceneMgr->createEntity("Penguin2", "penguin.mesh");
+	penguin2->setCastShadows(true);
+	Ogre::SceneNode *penguin2Node = mSceneMgr->getRootSceneNode()->createChildSceneNode("Penguin2Node");
+	penguin2Node->attachObject(penguin2);
+
+	// We need the bounding box of the entity to be able to set the size of the Bullet shape
+	Ogre::AxisAlignedBox penguin2BoundingBox = penguin2->getBoundingBox();
+
+	// Size of the Bullet shape, a box
+	Ogre::Vector3 penguin2ShapeSize = Ogre::Vector3::ZERO;
+	penguin2ShapeSize = penguin2BoundingBox.getSize();
+	penguin2ShapeSize /= 2.0f; // Only the half needed
+	penguin2ShapeSize *= 0.96f; // Bullet margin is a bit bigger so we need a smaller size
+
+	penguin2Node->scale(0.25f, 0.25f, 0.25f); // The penguin2 is too big for us
+	penguin2ShapeSize *= 0.25f; // don't forget to scale down the Bullet shape too
+
+	penguin2Node->yaw(Ogre::Degree(180));
+
+	penguin2Node->translate(0.0, 6.0, -50.0);
+
+	// After that create the Bullet shape with the calculated size
+	OgreBulletCollisions::BoxCollisionShape *penguin2Shape;
+	penguin2Shape = new OgreBulletCollisions::BoxCollisionShape(penguin2ShapeSize);
+
+
+	// and the Bullet rigid body
+	OgreBulletDynamics::RigidBody *penguin2Body = new OgreBulletDynamics::RigidBody("penguin2Body", mWorld);
+	Ogre::Vector3 penguin2Position = penguin2Node->getPosition();
+	Ogre::Quaternion penguin2Orientation = penguin2Node->getOrientation();
+	penguin2Body->setStaticShape(penguin2Node, penguin2Shape, 0.6, 0.6, // (node, shape, restitution, friction,
+		penguin2Position, penguin2Orientation); // starting position, orientation)
+
+	// Push the created objects to the deques
+
+	ViRus::Hittable *penguin2Hittable = new ViRus::HitCharacter(penguin2Body, penguin2Shape, penguin2Node, ViRus::TeamType::HERO, 40);
+
+	hitmap.add_hittable(*penguin2Body->getBulletObject(), *penguin2Hittable);
 }
 
 //-------------------------------------------------------------------------------------
@@ -192,10 +236,10 @@ bool TutorialApplication::processUnbufferedInput(const Ogre::FrameEvent& evt)
 		barrelBody->setShape(barrelNode, barrelShape,
 			0.6f, // dynamic body restitution
 			0.6f, // dynamic body friction
-			1.0f, // dynamic bodymass
+			100.0f, // dynamic bodymass
 			position, // starting position of the shape
 			Ogre::Quaternion(0, 0, 0, 1)); // orientation of the shape
-		barrelBody->setLinearVelocity(dir.normalisedCopy() * 7.0f); // shooting speed
+		barrelBody->setLinearVelocity(dir.normalisedCopy() * 100.0f); // shooting speed
 
 		mNumEntitiesInstanced++;
 
@@ -206,7 +250,7 @@ bool TutorialApplication::processUnbufferedInput(const Ogre::FrameEvent& evt)
 		hitmap.add_hittable(*barrelBody->getBulletObject(), *barrelHittable);
 	}
 
-	static Ogre::Real mMove = 250; // The movement constant
+	static Ogre::Real mMove = 100; // The movement constant
 	Ogre::Vector3 transVector = Ogre::Vector3::ZERO;
 
 	if (mKeyboard->isKeyDown(OIS::KC_I)) // Backward

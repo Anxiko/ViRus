@@ -173,6 +173,9 @@ namespace ViRus
 
 		public:
 
+			//Hit another hittable
+			virtual void hit(Hittable &h) {}
+
 			//Return true if this hittable is done and can be removed from the map
 			virtual bool finished()
 			{
