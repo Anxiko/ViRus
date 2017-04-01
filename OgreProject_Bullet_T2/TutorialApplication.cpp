@@ -28,6 +28,8 @@ TutorialApplication::~TutorialApplication(void)
 //-------------------------------------------------------------------------------------
 void TutorialApplication::createScene(void)
 {
+	constexpr float PENGUIN_SCALING = 0.1;
+
 	ViRus::Hittable::ptr_scn_mgr = mSceneMgr;
 
 	mNumEntitiesInstanced = 0; // how many shapes are created
@@ -99,12 +101,12 @@ void TutorialApplication::createScene(void)
 	penguinShapeSize /= 2.0f; // Only the half needed
 	penguinShapeSize *= 0.96f; // Bullet margin is a bit bigger so we need a smaller size
 
-	penguinNode->scale(0.25f, 0.25f, 0.25f); // The penguin is too big for us
-	penguinShapeSize *= 0.25f; // don't forget to scale down the Bullet shape too
+	penguinNode->scale(PENGUIN_SCALING, PENGUIN_SCALING, PENGUIN_SCALING); // The penguin is too big for us
+	penguinShapeSize *= PENGUIN_SCALING; // don't forget to scale down the Bullet shape too
 
 	penguinNode->yaw(Ogre::Degree(180));
 
-	penguinNode->translate(0.0, 6.0, 0.0);
+	penguinNode->translate(0.0, 24*PENGUIN_SCALING, 0.0);
 
 	// After that create the Bullet shape with the calculated size
 	OgreBulletCollisions::BoxCollisionShape *penguinShape;
@@ -144,12 +146,12 @@ void TutorialApplication::createScene(void)
 	penguin2ShapeSize /= 2.0f; // Only the half needed
 	penguin2ShapeSize *= 0.96f; // Bullet margin is a bit bigger so we need a smaller size
 
-	penguin2Node->scale(0.25f, 0.25f, 0.25f); // The penguin2 is too big for us
-	penguin2ShapeSize *= 0.25f; // don't forget to scale down the Bullet shape too
+	penguin2Node->scale(PENGUIN_SCALING, PENGUIN_SCALING, PENGUIN_SCALING); // The penguin2 is too big for us
+	penguin2ShapeSize *= PENGUIN_SCALING; // don't forget to scale down the Bullet shape too
 
 	penguin2Node->yaw(Ogre::Degree(180));
 
-	penguin2Node->translate(0.0, 6.0, -50.0);
+	penguin2Node->translate(0.0, 24*PENGUIN_SCALING, -50.0);
 
 	// After that create the Bullet shape with the calculated size
 	OgreBulletCollisions::BoxCollisionShape *penguin2Shape;
@@ -160,7 +162,7 @@ void TutorialApplication::createScene(void)
 	OgreBulletDynamics::RigidBody *penguin2Body = new OgreBulletDynamics::RigidBody("penguin2Body", mWorld);
 	Ogre::Vector3 penguin2Position = penguin2Node->getPosition();
 	Ogre::Quaternion penguin2Orientation = penguin2Node->getOrientation();
-	penguin2Body->setShape(penguin2Node, penguin2Shape, 0.6, 0.6, 10.0f,// (node, shape, restitution, friction, mass,
+	penguin2Body->setShape(penguin2Node, penguin2Shape, 1, 0.6, 10.0f,// (node, shape, restitution, friction, mass,
 		penguin2Position, penguin2Orientation); // starting position, orientation)
 
 	// Push the created objects to the deques
@@ -250,7 +252,7 @@ bool TutorialApplication::processUnbufferedInput(const Ogre::FrameEvent& evt)
 		hitmap.add_hittable(*barrelBody->getBulletObject(), *barrelHittable);
 	}
 
-	static Ogre::Real mMove = 100; // The movement constant
+	static Ogre::Real mMove = 10; // The movement constant
 	Ogre::Vector3 transVector = Ogre::Vector3::ZERO;
 
 	if (mKeyboard->isKeyDown(OIS::KC_I)) // Backward
