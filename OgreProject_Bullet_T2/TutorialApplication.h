@@ -48,9 +48,6 @@ private:
 
 	ViRus::HitMap hitmap;
 
-	btCollisionObject *penguinBulletObject;
-	ViRus::HitCharacter *heroHitter = nullptr;
-
 private:
 
 	//Hero callback

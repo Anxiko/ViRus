@@ -123,8 +123,7 @@ void TutorialApplication::createScene(void)
 	ViRus::Hittable *penguinHittable = new ViRus::HitCharacter(ViRus::HittableType::ENEMY, penguinBody, penguinShape, penguinNode, 10);
 	penguinHittable->set_callback(TutorialApplication::hero_callback);
 
-	penguinBulletObject = penguinBody->getBulletObject();
-	hitmap.add_hittable(*penguinBulletObject, *penguinHittable);
+	hitmap.add_hittable(*penguinBody->getBulletObject(), *penguinHittable);
 }
 
 //-------------------------------------------------------------------------------------
@@ -232,9 +231,6 @@ bool TutorialApplication::processUnbufferedInput(const Ogre::FrameEvent& evt)
 	// Update Bullet Physics animation
 	mWorld->stepSimulation(evt.timeSinceLastFrame);
 
-	static bool penguinHitLastFrame = false;
-	bool penguinHitThisFrame = false;
-
 	btDynamicsWorld * mBulletWorld = mWorld->getBulletDynamicsWorld();
 	int numManifolds = mBulletWorld->getDispatcher()->getNumManifolds();
 	for (int i = 0;i<numManifolds;i++)
@@ -244,20 +240,9 @@ bool TutorialApplication::processUnbufferedInput(const Ogre::FrameEvent& evt)
 		btCollisionObject* obB = const_cast<btCollisionObject*>(contactManifold->getBody1());
 
 		hitmap.handle_collision(obA, obB);
-
-		if ((obA == penguinBulletObject) || (obB == penguinBulletObject))
-		{
-			penguinHitThisFrame = true;
-			break;
-		}
 	}
 
 	hitmap.clean_queued();
-
-	if (!penguinHitLastFrame && penguinHitThisFrame && hero_alive)
-		mSceneMgr->getSceneNode("PenguinNode")->pitch(Ogre::Degree(90.0));
-
-	penguinHitLastFrame = penguinHitThisFrame;
 
 	return true;
 }
