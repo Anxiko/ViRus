@@ -6,12 +6,17 @@ namespace ViRus
 
 	Hittable::~Hittable()
 	{
+		//Call the callback, is set
 		if (callback)
 			(callback)(this);
 
+
+		//Delete the bullet objects
 		delete body;
 		delete shape;
 
+
+		//Delete the scene node
 		if (scene)
 		{
 			// Destroy all the attached objects
@@ -23,6 +28,7 @@ namespace ViRus
 				scene->getCreator()->destroyMovableObject(pObject);
 			}
 
+			//Delete the node
 			if (ptr_scn_mgr)
 				ptr_scn_mgr->destroySceneNode(scene);
 		}
@@ -30,40 +36,30 @@ namespace ViRus
 
 	void HitProjectile::hit(Hittable & h)
 	{
-		switch (h.type)
+		//Do not hit twice
+		if (isFinished)
+			return;
+
+		//Check if you're hitting a character
+		HitCharacter *ptr_hitcharacter = dynamic_cast<HitCharacter *>(&h);
+		if (ptr_hitcharacter)
 		{
-			case HittableType::ENEMY:
+			//Check if you're hitting an enemy
+			if (attack_team(*ptr_hitcharacter))
 			{
-				HitCharacter *ptr_character = dynamic_cast<HitCharacter *>(&h);
-				if (ptr_character)
-					ptr_character->takeDamage(dmg);
+				//Perform damage
+				ptr_hitcharacter->takeDamage(dmg);
 				isFinished = true;
-				break;
 			}
-
-			case HittableType::OBSTACLE:
-			{
-				//isFinished = true;
-				break;
-			}
-
-			default:
-				break;
+			return;
 		}
-	}
-	void HitCharacter::hit(Hittable & h)
-	{
-		switch (h.type)
+
+		//Check if you're hitting an obstacle
+		HitObstacle *ptr_hitobstacle = dynamic_cast<HitObstacle *>(&h);
+		if (ptr_hitobstacle)
 		{
-			case HittableType::PLAYER:
-			{
-				if (type == HittableType::ENEMY)
-				{
-					HitCharacter *ptr_character = dynamic_cast<HitCharacter *>(&h);
-					if (ptr_character)
-						ptr_character->takeDamage(dmg);
-				}
-			}
+			//isFinished = true;
+			return;
 		}
 	}
 
@@ -137,5 +133,65 @@ namespace ViRus
 		}
 
 		hittables.clear();
+	}
+
+	bool Teamable::attack_team(const Teamable &iteam) const
+	{
+		bool rv = false;//Return value
+
+		switch (get_team())//Team of this object
+		{
+			case TeamType::HERO:
+			{
+				switch (iteam.get_team())//Team of the other object
+				{
+					case TeamType::ENEMY:
+					{
+						rv = true;
+						break;
+					}
+
+					default:
+						break;
+				}
+
+				break;
+			}
+
+			case TeamType::ENEMY:
+			{
+				switch (iteam.get_team())//Team of the other object
+				{
+					case TeamType::HERO:
+					{
+						rv = true;
+						break;
+					}
+
+					default:
+						break;
+				}
+				break;
+			}
+
+			default:
+				break;
+		}
+
+		return rv;
+	}
+	void HitCharAttack::hit(Hittable & h)
+	{
+		//If the enemy is another character
+		HitCharacter *ptr_hitcharacter = dynamic_cast<HitCharacter *>(&h);
+		if (ptr_hitcharacter)
+		{
+			//Check if they're enemies
+			if (attack_team(*ptr_hitcharacter))
+			{
+				//Do damage
+				ptr_hitcharacter->takeDamage(dmg);
+			}
+		}
 	}
 }

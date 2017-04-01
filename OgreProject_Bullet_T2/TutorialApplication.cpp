@@ -81,7 +81,7 @@ void TutorialApplication::createScene(void)
 
 	// Push the created objects to the deques
 
-	ViRus::Hittable *floorHittable = new ViRus::Hittable(ViRus::HittableType::OBSTACLE, floorBody, floorShape, floorNode);
+	ViRus::Hittable *floorHittable = new ViRus::HitObstacle(floorBody, floorShape, floorNode);
 	hitmap.add_hittable(*floorBody->getBulletObject(), *floorHittable);
 
 	// Define the penguin mesh
@@ -120,7 +120,7 @@ void TutorialApplication::createScene(void)
 
 	// Push the created objects to the deques
 
-	ViRus::Hittable *penguinHittable = new ViRus::HitCharacter(ViRus::HittableType::ENEMY, penguinBody, penguinShape, penguinNode, 10);
+	ViRus::Hittable *penguinHittable = new ViRus::HitCharacter(penguinBody, penguinShape, penguinNode,  ViRus::TeamType::ENEMY, 40);
 	penguinHittable->set_callback(TutorialApplication::hero_callback);
 
 	hitmap.add_hittable(*penguinBody->getBulletObject(), *penguinHittable);
@@ -201,7 +201,7 @@ bool TutorialApplication::processUnbufferedInput(const Ogre::FrameEvent& evt)
 
 		// Push the created objects to the deques
 
-		ViRus::Hittable *barrelHittable = new ViRus::HitProjectile(barrelBody, barrelShape, barrelNode, 10);
+		ViRus::Hittable *barrelHittable = new ViRus::HitProjectile(barrelBody, barrelShape, barrelNode, ViRus::TeamType::HERO, 10);
 
 		hitmap.add_hittable(*barrelBody->getBulletObject(), *barrelHittable);
 	}
