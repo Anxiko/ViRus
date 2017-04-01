@@ -160,7 +160,7 @@ void TutorialApplication::createScene(void)
 	OgreBulletDynamics::RigidBody *penguin2Body = new OgreBulletDynamics::RigidBody("penguin2Body", mWorld);
 	Ogre::Vector3 penguin2Position = penguin2Node->getPosition();
 	Ogre::Quaternion penguin2Orientation = penguin2Node->getOrientation();
-	penguin2Body->setStaticShape(penguin2Node, penguin2Shape, 0.6, 0.6, // (node, shape, restitution, friction,
+	penguin2Body->setShape(penguin2Node, penguin2Shape, 0.6, 0.6, 10.0f,// (node, shape, restitution, friction, mass,
 		penguin2Position, penguin2Orientation); // starting position, orientation)
 
 	// Push the created objects to the deques
