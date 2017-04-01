@@ -243,6 +243,9 @@ bool TutorialApplication::processUnbufferedInput(const Ogre::FrameEvent& evt)
 			Ogre::Quaternion(0, 0, 0, 1)); // orientation of the shape
 		barrelBody->setLinearVelocity(dir.normalisedCopy() * 100.0f); // shooting speed
 
+
+		barrelBody->getBulletRigidBody()->setAngularFactor(btVector3(0, 0, 0));
+
 		mNumEntitiesInstanced++;
 
 		// Push the created objects to the deques
