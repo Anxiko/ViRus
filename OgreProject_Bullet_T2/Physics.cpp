@@ -191,8 +191,15 @@ namespace ViRus
 			{
 				//Do damage
 				ptr_hitcharacter->takeDamage(dmg);
+				deltaAttack = timeAttack;
 
 			}
 		}
+	}
+
+	void HitCharAttack::deltaTime(double itime)
+	{
+		deltaAttack -= itime;
+		deltaAttack = std::max(0.0, deltaAttack);
 	}
 }

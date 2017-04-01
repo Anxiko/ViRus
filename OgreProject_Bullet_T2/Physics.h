@@ -129,7 +129,6 @@ namespace ViRus
 	//Projectile
 	class HitProjectile : public Hittable, public Teamable
 	{
-
 		private:
 			bool isFinished = false;//Bullet has hit something, and despawns
 			int dmg;//Damage that this bullet deals upon hitting a character
@@ -192,15 +191,20 @@ namespace ViRus
 	//Character that hits others upon contact
 	class HitCharAttack : public HitCharacter
 	{
+		private:
+			constexpr static double DEF_ATTACK_TIME = 2;//Default time between attacks
+
+
 		protected:
 
 			int dmg;//Damage that the enemy performs at contact
+			double deltaAttack = 0.0, timeAttack;//Time elapsed between attacks, actual and max
 
 		public:
 
 			//Complete constructor
-			HitCharAttack(OgreBulletDynamics::RigidBody *ibody, OgreBulletCollisions::CollisionShape *ishape, Ogre::SceneNode *iscene, TeamType iteam, int ihealth, int idmg)
-			:HitCharacter(ibody, ishape, iscene, iteam, ihealth), dmg(idmg)
+			HitCharAttack(OgreBulletDynamics::RigidBody *ibody, OgreBulletCollisions::CollisionShape *ishape, Ogre::SceneNode *iscene, TeamType iteam, int ihealth, int idmg, double itimeAttack = DEF_ATTACK_TIME)
+			:HitCharacter(ibody, ishape, iscene, iteam, ihealth), dmg(idmg), timeAttack(itimeAttack)
 			{}
 
 			//Virtual destructor
@@ -211,6 +215,10 @@ namespace ViRus
 			//Hit another hittable
 			virtual void hit(Hittable &h);
 
+		public:
+
+			//Update the time between attacks with the given elapsed time
+			void deltaTime(double itime);
 
 	};
 

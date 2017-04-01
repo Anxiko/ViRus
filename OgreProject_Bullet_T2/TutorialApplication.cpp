@@ -124,10 +124,10 @@ void TutorialApplication::createScene(void)
 
 	// Push the created objects to the deques
 
-	ViRus::Hittable *penguinHittable = new ViRus::HitCharAttack(penguinBody, penguinShape, penguinNode,  ViRus::TeamType::ENEMY, 40, 5);
-	penguinHittable->set_callback(TutorialApplication::hero_callback);
+	ptr_hero = new ViRus::HitCharacter(penguinBody, penguinShape, penguinNode,  ViRus::TeamType::HERO, 40);
+	ptr_hero->set_callback(TutorialApplication::hero_callback);
 
-	hitmap.add_hittable(*penguinBody->getBulletObject(), *penguinHittable);
+	hitmap.add_hittable(*penguinBody->getBulletObject(), *ptr_hero);
 
 
 
@@ -167,9 +167,10 @@ void TutorialApplication::createScene(void)
 
 	// Push the created objects to the deques
 
-	ViRus::Hittable *penguin2Hittable = new ViRus::HitCharacter(penguin2Body, penguin2Shape, penguin2Node, ViRus::TeamType::HERO, 40);
+	ptr_enemy = new ViRus::HitCharAttack(penguin2Body, penguin2Shape, penguin2Node, ViRus::TeamType::ENEMY, 40, 20);
+	ptr_enemy->set_callback(enemy_callback);
 
-	hitmap.add_hittable(*penguin2Body->getBulletObject(), *penguin2Hittable);
+	hitmap.add_hittable(*penguin2Body->getBulletObject(), *ptr_enemy);
 }
 
 //-------------------------------------------------------------------------------------
@@ -274,8 +275,11 @@ bool TutorialApplication::processUnbufferedInput(const Ogre::FrameEvent& evt)
 	{
 		transVector.x += mMove;
 	}
-	if (hero_alive)
+	if (ptr_hero)
 		mSceneMgr->getSceneNode("PenguinNode")->translate(transVector * evt.timeSinceLastFrame);
+
+	if (ptr_enemy)
+		ptr_enemy->deltaTime(evt.timeSinceLastFrame);
 
 	// Update Bullet Physics animation
 	mWorld->stepSimulation(evt.timeSinceLastFrame);
@@ -297,7 +301,11 @@ bool TutorialApplication::processUnbufferedInput(const Ogre::FrameEvent& evt)
 }
 void TutorialApplication::hero_callback(ViRus::Hittable *)
 {
-	hero_alive = false;
+	ptr_hero = nullptr;
+}
+void TutorialApplication::enemy_callback(ViRus::Hittable * h)
+{
+	ptr_enemy = nullptr;
 }
 //-------------------------------------------------------------------------------------
 
