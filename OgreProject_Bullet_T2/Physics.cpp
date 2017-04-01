@@ -117,8 +117,13 @@ namespace ViRus
 	{
 		for (btCollisionObject *obj : clean_up)
 		{
-			delete obj;
-			hittables.erase(obj);
+			auto it = hittables.find(obj);
+			if (it != hittables.end())
+			{
+				Hittable *hittable = it->second;
+				delete hittable;
+				hittables.erase(it);
+			}
 		}
 
 		clean_up.clear();
