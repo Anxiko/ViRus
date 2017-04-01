@@ -182,10 +182,6 @@ namespace ViRus
 	}
 	void HitCharAttack::hit(Hittable & h)
 	{
-		std::ofstream log("log.txt", std::fstream::app);
-
-		log << "HitCharAttack hits something" << std::endl;
-
 		//If the enemy is another character
 		HitCharacter *ptr_hitcharacter = dynamic_cast<HitCharacter *>(&h);
 		if (ptr_hitcharacter)
@@ -195,8 +191,6 @@ namespace ViRus
 			{
 				//Do damage
 				ptr_hitcharacter->takeDamage(dmg);
-
-				log << "HitCharAttack hits HitCharacter" << std::endl;
 
 			}
 		}
