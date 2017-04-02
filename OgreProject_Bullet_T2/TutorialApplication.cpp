@@ -90,7 +90,9 @@ void TutorialApplication::createScene(void)
 	Ogre::Entity* penguin = mSceneMgr->createEntity("Penguin", "penguin.mesh");
 	penguin->setCastShadows(true);
 	Ogre::SceneNode *penguinNode = mSceneMgr->getRootSceneNode()->createChildSceneNode("PenguinNode");
-	penguinNode->attachObject(penguin);
+	Ogre::SceneNode *penguinEntityNode = penguinNode->createChildSceneNode("PenguinEntity");
+	penguinEntityNode->attachObject(penguin);
+	penguinEntityNode->yaw(Ogre::Degree(180));
 
 	// We need the bounding box of the entity to be able to set the size of the Bullet shape
 	Ogre::AxisAlignedBox penguinBoundingBox = penguin->getBoundingBox();
@@ -203,85 +205,96 @@ bool TutorialApplication::processUnbufferedInput(const Ogre::FrameEvent& evt)
 
 	mToggle -= evt.timeSinceLastFrame;
 
-	
-
-	if (mKeyboard->isKeyDown(OIS::KC_B) && (mToggle < 0.0f) && ptr_hero)
-	{
-		mToggle = 0.5;
-
-		// Create and throw a barrel if 'B' is pressed
-		// Starting position of the barrel
-		Ogre::SceneNode *pNode = mSceneMgr->getSceneNode("PenguinNode");
-		Ogre::Vector3 from = pNode->getPosition();	//mCamera->getDerivedPosition();
-		Ogre::Vector3 dir = pNode->getOrientation() * Ogre::Vector3(0,0,1);	//mCamera->getDerivedDirection();
-		Ogre::Vector3 position = (from + dir.normalisedCopy() * 10.0f);
-
-		// Create an ordinary, Ogre mesh with texture
-		Ogre::Entity *barrel = mSceneMgr->createEntity(
-			"Barrel" + Ogre::StringConverter::toString(mNumEntitiesInstanced), "Barrel.mesh");
-		barrel->setCastShadows(true);
-		Ogre::SceneNode *barrelNode = mSceneMgr->getRootSceneNode()->createChildSceneNode();
-		barrelNode->attachObject(barrel);
-
-		// We need the bounding box of the entity to be able to set the size of the Bullet shape
-		Ogre::AxisAlignedBox barrelBoundingBox = barrel->getBoundingBox();
-
-		// Size of the Bullet shape, a box
-		Ogre::Vector3 barrelShapeSize = Ogre::Vector3::ZERO;
-		barrelShapeSize = barrelBoundingBox.getSize();
-		barrelShapeSize /= 2.0f; // Only the half needed
-		barrelShapeSize *= 0.25f; // Bullet margin is a bit bigger so we need a smaller size
-
-		barrelNode->scale(Ogre::Vector3(0.25f,0.25f,0.25f));
-
-		// After that create the Bullet shape with the calculated size
-		OgreBulletCollisions::BoxCollisionShape *barrelShape;
-		barrelShape = new OgreBulletCollisions::BoxCollisionShape(barrelShapeSize);
-
-		// and the Bullet rigid body
-		OgreBulletDynamics::RigidBody *barrelBody = new OgreBulletDynamics::RigidBody(
-			"defaultBoxRigid" + Ogre::StringConverter::toString(mNumEntitiesInstanced), mWorld);
-		barrelBody->setShape(barrelNode, barrelShape,
-			0.6f, // dynamic body restitution
-			0.6f, // dynamic body friction
-			100.0f, // dynamic bodymass
-			position, // starting position of the shape
-			Ogre::Quaternion(0, 0, 0, 1)); // orientation of the shape
-		barrelBody->setLinearVelocity(dir.normalisedCopy() * 100.0f); // shooting speed
-
-
-		barrelBody->getBulletRigidBody()->setAngularFactor(btVector3(0, 0, 0));
-
-		mNumEntitiesInstanced++;
-
-		// Push the created objects to the deques
-
-		ViRus::Hittable *barrelHittable = new ViRus::HitProjectile(barrelBody, barrelShape, barrelNode, ViRus::TeamType::HERO, 10);
-
-		hitmap.add_hittable(*barrelBody->getBulletObject(), *barrelHittable);
-	}
-
-	static Ogre::Real mMove = 10; // The movement constant
-	Ogre::Vector3 transVector = Ogre::Vector3::ZERO;
-
-	if (mKeyboard->isKeyDown(OIS::KC_I)) // Backward
-	{
-		transVector.z -= mMove;
-	}
-	if (mKeyboard->isKeyDown(OIS::KC_K)) // Forward
-	{
-		transVector.z += mMove;
-	}
-	if (mKeyboard->isKeyDown(OIS::KC_J)) // Left
-	{
-		transVector.x -= mMove;
-	}
-	if (mKeyboard->isKeyDown(OIS::KC_L)) // Right
-	{
-		transVector.x += mMove;
-	}
 	if (ptr_hero)
-		mSceneMgr->getSceneNode("PenguinNode")->translate(transVector * evt.timeSinceLastFrame);
+	{
+
+		Ogre::SceneNode *pNode = mSceneMgr->getSceneNode("PenguinNode");
+		Ogre::Vector3 from = pNode->getPosition();
+		Ogre::Vector3 dir = pNode->getOrientation() * Ogre::Vector3(0, 0, -1);
+
+		if (mKeyboard->isKeyDown(OIS::KC_B) && (mToggle < 0.0f))
+		{
+			mToggle = 0.5;
+
+			// Create and throw a barrel if 'B' is pressed
+			// Starting position of the barrel
+			Ogre::Vector3 position = (from + dir.normalisedCopy() * 10.0f);
+
+			// Create an ordinary, Ogre mesh with texture
+			Ogre::Entity *barrel = mSceneMgr->createEntity(
+				"Barrel" + Ogre::StringConverter::toString(mNumEntitiesInstanced), "Barrel.mesh");
+			barrel->setCastShadows(true);
+			Ogre::SceneNode *barrelNode = mSceneMgr->getRootSceneNode()->createChildSceneNode();
+			barrelNode->attachObject(barrel);
+
+			// We need the bounding box of the entity to be able to set the size of the Bullet shape
+			Ogre::AxisAlignedBox barrelBoundingBox = barrel->getBoundingBox();
+
+			// Size of the Bullet shape, a box
+			Ogre::Vector3 barrelShapeSize = Ogre::Vector3::ZERO;
+			barrelShapeSize = barrelBoundingBox.getSize();
+			barrelShapeSize /= 2.0f; // Only the half needed
+			barrelShapeSize *= 0.25f; // Bullet margin is a bit bigger so we need a smaller size
+
+			barrelNode->scale(Ogre::Vector3(0.25f, 0.25f, 0.25f));
+
+			// After that create the Bullet shape with the calculated size
+			OgreBulletCollisions::BoxCollisionShape *barrelShape;
+			barrelShape = new OgreBulletCollisions::BoxCollisionShape(barrelShapeSize);
+
+			// and the Bullet rigid body
+			OgreBulletDynamics::RigidBody *barrelBody = new OgreBulletDynamics::RigidBody(
+				"defaultBoxRigid" + Ogre::StringConverter::toString(mNumEntitiesInstanced), mWorld);
+			barrelBody->setShape(barrelNode, barrelShape,
+				0.6f, // dynamic body restitution
+				0.6f, // dynamic body friction
+				100.0f, // dynamic bodymass
+				position, // starting position of the shape
+				Ogre::Quaternion(0, 0, 0, 1)); // orientation of the shape
+			barrelBody->setLinearVelocity(dir.normalisedCopy() * 100.0f); // shooting speed
+
+
+			barrelBody->getBulletRigidBody()->setAngularFactor(btVector3(0, 0, 0));
+
+			mNumEntitiesInstanced++;
+
+			// Push the created objects to the deques
+
+			ViRus::Hittable *barrelHittable = new ViRus::HitProjectile(barrelBody, barrelShape, barrelNode, ViRus::TeamType::HERO, 10);
+
+			hitmap.add_hittable(*barrelBody->getBulletObject(), *barrelHittable);
+		}
+
+		static Ogre::Real mMove = 10; // The movement constant
+		Ogre::Vector3 transVector = Ogre::Vector3::ZERO;
+
+		if (mKeyboard->isKeyDown(OIS::KC_I)) // Backward
+		{
+			transVector.z -= mMove;
+		}
+		if (mKeyboard->isKeyDown(OIS::KC_K)) // Forward
+		{
+			transVector.z += mMove;
+		}
+		if (mKeyboard->isKeyDown(OIS::KC_J)) // Left
+		{
+			transVector.x -= mMove;
+		}
+		if (mKeyboard->isKeyDown(OIS::KC_L)) // Right
+		{
+			transVector.x += mMove;
+		}
+		if (mKeyboard->isKeyDown(OIS::KC_U))
+		{
+			pNode->yaw(Ogre::Degree(5));
+		}
+		if (mKeyboard->isKeyDown(OIS::KC_O))
+		{
+			pNode->yaw(Ogre::Degree(-5));
+		}
+
+		mSceneMgr->getSceneNode("PenguinNode")->translate(pNode->getOrientation() * transVector * evt.timeSinceLastFrame);
+	}
 
 	if (ptr_enemy)
 		ptr_enemy->deltaTime(evt.timeSinceLastFrame);
