@@ -157,11 +157,12 @@ void TutorialApplication::createScene(void)
 
 
 	// and the Bullet rigid body
-	penguin2Body = new OgreBulletDynamics::RigidBody("penguin2Body", mWorld);
+	OgreBulletDynamics::RigidBody *penguin2Body = new OgreBulletDynamics::RigidBody("penguin2Body", mWorld);
 	Ogre::Vector3 penguin2Position = penguin2Node->getPosition();
 	Ogre::Quaternion penguin2Orientation = penguin2Node->getOrientation();
 	penguin2Body->setShape(penguin2Node, penguin2Shape, 0.1, 5.0f, 10.0f,// (node, shape, restitution, friction, mass,
 		penguin2Position, penguin2Orientation); // starting position, orientation)
+	penguin2Body->getBulletRigidBody()->setAngularFactor(btVector3(0, 0, 0));
 
 	// Push the created objects to the deques
 
@@ -303,23 +304,7 @@ bool TutorialApplication::processUnbufferedInput(const Ogre::FrameEvent& evt)
 	
 	if (ptr_enemy && ptr_hero)
 	{
-		static Ogre::Real mMoveEnemy = 4;
-		Ogre::Vector3 chaseVector = Ogre::Vector3::ZERO;
-
-		Ogre::Vector3 heroPos = mSceneMgr->getSceneNode("PenguinNode")->getPosition();
-		Ogre::Vector3 enemyPos = mSceneMgr->getSceneNode("Penguin2Node")->getPosition();
-
-		if (heroPos.x > enemyPos.x)
-			chaseVector.x += mMoveEnemy;
-		if (heroPos.x < enemyPos.x)
-			chaseVector.x -= mMoveEnemy;
-		if (heroPos.z > enemyPos.z)
-			chaseVector.z += mMoveEnemy;
-		if (heroPos.z < enemyPos.z)
-			chaseVector.z -= mMoveEnemy;
-
-		penguin2Body->getBulletRigidBody()->setAngularFactor(btVector3(0, 0, 0));
-		penguin2Body->setLinearVelocity(chaseVector);
+		ptr_enemy->chase(*ptr_hero);
 	}
 
 	return true;

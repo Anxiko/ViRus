@@ -204,4 +204,28 @@ namespace ViRus
 		deltaAttack -= itime;
 		deltaAttack = std::max(0.0, deltaAttack);
 	}
+	void HitCharAttack::go_point(Ogre::Vector3 pos)
+	{
+		if (scene&&body)
+		{
+			Ogre::Vector3 dir = pos - scene->getPosition();
+			dir.normalise();
+
+			body->setLinearVelocity(dir*vel);
+		}
+	}
+	void HitCharAttack::chase(const HitCharacter & h)
+	{
+		Ogre::Vector3 pos;
+		if (h.get_position(pos))
+			go_point(pos);
+	}
+	bool HitCharacter::get_position(Ogre::Vector3 & pos) const
+	{
+		if (!scene)
+			return false;
+
+		pos = scene->getPosition();
+		return true;
+	}
 }

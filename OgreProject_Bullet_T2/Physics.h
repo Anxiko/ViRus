@@ -159,7 +159,7 @@ namespace ViRus
 	class HitCharacter : public Hittable, public Teamable
 	{
 		protected:
-			int health;//Health that his character has (below 0, character is dead)
+			int health;//Health that his character has (below 0, character is dead
 
 		public:
 
@@ -186,12 +186,16 @@ namespace ViRus
 			{
 				health -= idmg;
 			}
+
+			//Get the position of scene. Return true if the vector was changed, false if there was no scene node
+			bool get_position(Ogre::Vector3 &pos) const;
 	};
 
 	//Character that hits others upon contact
 	class HitCharAttack : public HitCharacter
 	{
-		private:
+		protected:
+			static constexpr double DEF_VEL = 4;//Default velocity of the character
 			constexpr static double DEF_ATTACK_TIME = 2.0;//Default time between attacks
 
 
@@ -199,12 +203,13 @@ namespace ViRus
 
 			int dmg;//Damage that the enemy performs at contact
 			double deltaAttack = 0.0, timeAttack;//Time elapsed between attacks, actual and max
+			double vel;//Velocity of the character
 
 		public:
 
 			//Complete constructor
-			HitCharAttack(OgreBulletDynamics::RigidBody *ibody, OgreBulletCollisions::CollisionShape *ishape, Ogre::SceneNode *iscene, TeamType iteam, int ihealth, int idmg, double itimeAttack = DEF_ATTACK_TIME)
-			:HitCharacter(ibody, ishape, iscene, iteam, ihealth), dmg(idmg), timeAttack(itimeAttack)
+			HitCharAttack(OgreBulletDynamics::RigidBody *ibody, OgreBulletCollisions::CollisionShape *ishape, Ogre::SceneNode *iscene, TeamType iteam, int ihealth, int idmg, double itimeAttack = DEF_ATTACK_TIME, double ivel = DEF_VEL)
+			:HitCharacter(ibody, ishape, iscene, iteam, ihealth), dmg(idmg), timeAttack(itimeAttack), vel(ivel)
 			{}
 
 			//Virtual destructor
@@ -219,6 +224,12 @@ namespace ViRus
 
 			//Update the time between attacks with the given elapsed time
 			void deltaTime(double itime);
+
+			//Go to a point
+			void go_point(Ogre::Vector3 pos);
+
+			//Chase a character
+			void chase(const HitCharacter &h);
 
 	};
 
