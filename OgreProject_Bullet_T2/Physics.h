@@ -26,6 +26,9 @@ namespace ViRus
 		END
 	};
 
+	//Prototypes
+	void destroy_node(Ogre::SceneNode *node);
+
 	//Class declarations
 	class Hittable;//Object that can be hit
 	class HitObstacle;//Hittable of a static obstacle

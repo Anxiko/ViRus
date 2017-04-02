@@ -19,14 +19,9 @@ namespace ViRus
 		//Delete the scene node
 		if (scene)
 		{
-			// Destroy all the attached objects
-			Ogre::SceneNode::ObjectIterator itObject = scene->getAttachedObjectIterator();
+			destroy_node(scene);
 
-			while (itObject.hasMoreElements())
-			{
-				Ogre::MovableObject* pObject = static_cast<Ogre::MovableObject*>(itObject.getNext());
-				scene->getCreator()->destroyMovableObject(pObject);
-			}
+			scene->removeAndDestroyAllChildren();
 
 			//Delete the node
 			if (ptr_scn_mgr)
@@ -228,5 +223,26 @@ namespace ViRus
 
 		pos = scene->getPosition();
 		return true;
+	}
+
+	void destroy_node(Ogre::SceneNode * node)
+	{
+		// Destroy all the attached objects
+		Ogre::SceneNode::ObjectIterator itObject = node->getAttachedObjectIterator();
+
+		while (itObject.hasMoreElements())
+		{
+			Ogre::MovableObject* pObject = static_cast<Ogre::MovableObject* > (itObject.getNext());
+			node->getCreator()->destroyMovableObject(pObject);
+		}
+
+		//Recursive call on child nodes
+		Ogre::SceneNode::ChildNodeIterator itChild = node->getChildIterator();
+
+		while (itChild.hasMoreElements())
+		{
+			Ogre::SceneNode* pChildNode = static_cast<Ogre::SceneNode*>(itChild.getNext());
+			destroy_node(pChildNode);
+		}
 	}
 }

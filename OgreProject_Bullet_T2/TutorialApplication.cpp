@@ -135,7 +135,9 @@ void TutorialApplication::createScene(void)
 	Ogre::Entity* penguin2 = mSceneMgr->createEntity("Penguin2", "penguin.mesh");
 	penguin2->setCastShadows(true);
 	Ogre::SceneNode *penguin2Node = mSceneMgr->getRootSceneNode()->createChildSceneNode("Penguin2Node");
-	penguin2Node->attachObject(penguin2);
+	Ogre::SceneNode *penguin2EntityNode = penguin2Node->createChildSceneNode("Penguin2Entity");
+	penguin2EntityNode->attachObject(penguin2);
+	penguin2EntityNode->yaw(Ogre::Degree(180));
 	
 	// We need the bounding box of the entity to be able to set the size of the Bullet shape
 	Ogre::AxisAlignedBox penguin2BoundingBox = penguin2->getBoundingBox();
