@@ -49,6 +49,8 @@ private:
 
 	ViRus::HitMap hitmap;
 
+	OgreBulletDynamics::RigidBody *penguin2Body;
+
 private:
 
 	//Hero callback

@@ -190,9 +190,11 @@ namespace ViRus
 			if (attack_team(*ptr_hitcharacter))
 			{
 				//Do damage
-				ptr_hitcharacter->takeDamage(dmg);
-				deltaAttack = timeAttack;
-
+				if (deltaAttack == 0.0)
+				{
+					ptr_hitcharacter->takeDamage(dmg);
+					deltaAttack = timeAttack;
+				}
 			}
 		}
 	}

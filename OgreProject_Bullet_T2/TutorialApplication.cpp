@@ -136,7 +136,7 @@ void TutorialApplication::createScene(void)
 	penguin2->setCastShadows(true);
 	Ogre::SceneNode *penguin2Node = mSceneMgr->getRootSceneNode()->createChildSceneNode("Penguin2Node");
 	penguin2Node->attachObject(penguin2);
-
+	
 	// We need the bounding box of the entity to be able to set the size of the Bullet shape
 	Ogre::AxisAlignedBox penguin2BoundingBox = penguin2->getBoundingBox();
 
@@ -149,8 +149,6 @@ void TutorialApplication::createScene(void)
 	penguin2Node->scale(PENGUIN_SCALING, PENGUIN_SCALING, PENGUIN_SCALING); // The penguin2 is too big for us
 	penguin2ShapeSize *= PENGUIN_SCALING; // don't forget to scale down the Bullet shape too
 
-	penguin2Node->yaw(Ogre::Degree(180));
-
 	penguin2Node->translate(0.0, 24*PENGUIN_SCALING, -50.0);
 
 	// After that create the Bullet shape with the calculated size
@@ -159,7 +157,7 @@ void TutorialApplication::createScene(void)
 
 
 	// and the Bullet rigid body
-	OgreBulletDynamics::RigidBody *penguin2Body = new OgreBulletDynamics::RigidBody("penguin2Body", mWorld);
+	penguin2Body = new OgreBulletDynamics::RigidBody("penguin2Body", mWorld);
 	Ogre::Vector3 penguin2Position = penguin2Node->getPosition();
 	Ogre::Quaternion penguin2Orientation = penguin2Node->getOrientation();
 	penguin2Body->setShape(penguin2Node, penguin2Shape, 0.1, 5.0f, 10.0f,// (node, shape, restitution, friction, mass,
@@ -202,15 +200,17 @@ bool TutorialApplication::processUnbufferedInput(const Ogre::FrameEvent& evt)
 
 	mToggle -= evt.timeSinceLastFrame;
 
-	if (mKeyboard->isKeyDown(OIS::KC_B) && (mToggle < 0.0f))
+	
+
+	if (mKeyboard->isKeyDown(OIS::KC_B) && (mToggle < 0.0f) && ptr_hero)
 	{
 		mToggle = 0.5;
 
 		// Create and throw a barrel if 'B' is pressed
-
 		// Starting position of the barrel
-		Ogre::Vector3 from = mCamera->getDerivedPosition();
-		Ogre::Vector3 dir = mCamera->getDerivedDirection();
+		Ogre::SceneNode *pNode = mSceneMgr->getSceneNode("PenguinNode");
+		Ogre::Vector3 from = pNode->getPosition();	//mCamera->getDerivedPosition();
+		Ogre::Vector3 dir = pNode->getOrientation() * Ogre::Vector3(0,0,1);	//mCamera->getDerivedDirection();
 		Ogre::Vector3 position = (from + dir.normalisedCopy() * 10.0f);
 
 		// Create an ordinary, Ogre mesh with texture
@@ -227,7 +227,9 @@ bool TutorialApplication::processUnbufferedInput(const Ogre::FrameEvent& evt)
 		Ogre::Vector3 barrelShapeSize = Ogre::Vector3::ZERO;
 		barrelShapeSize = barrelBoundingBox.getSize();
 		barrelShapeSize /= 2.0f; // Only the half needed
-		barrelShapeSize *= 0.96f; // Bullet margin is a bit bigger so we need a smaller size
+		barrelShapeSize *= 0.25f; // Bullet margin is a bit bigger so we need a smaller size
+
+		barrelNode->scale(Ogre::Vector3(0.25f,0.25f,0.25f));
 
 		// After that create the Bullet shape with the calculated size
 		OgreBulletCollisions::BoxCollisionShape *barrelShape;
@@ -296,6 +298,29 @@ bool TutorialApplication::processUnbufferedInput(const Ogre::FrameEvent& evt)
 	}
 
 	hitmap.clean_queued();
+
+	// Chase
+	
+	if (ptr_enemy && ptr_hero)
+	{
+		static Ogre::Real mMoveEnemy = 4;
+		Ogre::Vector3 chaseVector = Ogre::Vector3::ZERO;
+
+		Ogre::Vector3 heroPos = mSceneMgr->getSceneNode("PenguinNode")->getPosition();
+		Ogre::Vector3 enemyPos = mSceneMgr->getSceneNode("Penguin2Node")->getPosition();
+
+		if (heroPos.x > enemyPos.x)
+			chaseVector.x += mMoveEnemy;
+		if (heroPos.x < enemyPos.x)
+			chaseVector.x -= mMoveEnemy;
+		if (heroPos.z > enemyPos.z)
+			chaseVector.z += mMoveEnemy;
+		if (heroPos.z < enemyPos.z)
+			chaseVector.z -= mMoveEnemy;
+
+		penguin2Body->getBulletRigidBody()->setAngularFactor(btVector3(0, 0, 0));
+		penguin2Body->setLinearVelocity(chaseVector);
+	}
 
 	return true;
 }

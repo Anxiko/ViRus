@@ -192,7 +192,7 @@ namespace ViRus
 	class HitCharAttack : public HitCharacter
 	{
 		private:
-			constexpr static double DEF_ATTACK_TIME = 2;//Default time between attacks
+			constexpr static double DEF_ATTACK_TIME = 2.0;//Default time between attacks
 
 
 		protected:
