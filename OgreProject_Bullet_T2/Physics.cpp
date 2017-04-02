@@ -211,6 +211,7 @@ namespace ViRus
 			Ogre::Vector3 dir = pos - scene->getPosition();
 			dir.normalise();
 
+			scene->lookAt(pos, Ogre::Node::TS_WORLD);
 			body->setLinearVelocity(dir*vel);
 		}
 	}
